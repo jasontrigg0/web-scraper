@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+import scrape
+import sys
+
+def parser():
+    if __name__ == "__main__":
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-u","--url")
+        parser.add_argument("--css")
+        parser.add_argument("-i","--index",type=int)
+        parser.add_argument("-t","--table",action="store_true")
+        parser.add_argument("-f","--infile",help="html file to read",default=None)
+        parser.add_argument("--print_url",action="store_true")
+        parser.add_argument("--js",action="store_true",help="load javascript on a page before running")
+        parser.add_argument("-g","--grep",help="only keep matches that include a given regex")
+        parser.add_argument("--print_raw_html", action="store_true")
+        parser.add_argument("--request_info")
+        return parser
+
+if __name__ == "__main__":
+    # test_cfg = {"url":"http://www.computerchess.org.uk/ccrl/4040/",
+    #             "table":True,
+    #             "index":1,
+    #             "grep":"Rank"}
+    #out = scrape.scrape(test_cfg)
+    out = scrape.scrape()
+    sys.stdout.write(out)
