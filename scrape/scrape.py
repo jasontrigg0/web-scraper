@@ -26,19 +26,19 @@ def internal_args():
 
 
 def table2csv(table, print_url=False):
-    header = [process_tag(tag, print_url) for tag in table.select("tr th")]
-    if header:
-        start_idx = 1
-    else:
-        start_idx = 0
-    rows = [[process_tag(tag, print_url) for tag in row.select("td")] for row in table.select("tr")[start_idx:]]
-    if header and len(header) < len(rows[0]):
-        sys.stderr.write("Dropping short header...\n")
-        header = None
-    if not header:
-        header = [str(i) for i in range(max(len(i) for i in rows))]
-    rows = [r + ['']*(len(header) - len(r)) for r in rows]
-    return pd.DataFrame.from_records(rows, columns=header)
+    #possible beautiful soup bug?
+    #soup = BeautifulSoup("<table><tr><td></td><td></td><td>stuff</td></tr></table>", 'html.parser')
+    #the following two lines don't give the same result:
+    #print(list(soup.findAll(["td","th"])))
+    #print(list(soup.select("td,th")))
+    #using findAll instead of select for this reason
+
+    data_rows = [[process_tag(tag, print_url) for tag in row.findAll(["th","td"])] for row in table.select("tr") if (len(row.select("td")) != 0)]
+    row_length = len(data_rows[0])
+    #[[process_tag(tag, print_url) for tag in row.select("th")] for row in table.select("tr") if (len(row.select("td")) == 0)]
+    all_rows = [[process_tag(tag, print_url) for tag in row.findAll(["th","td"])] for row in table.select("tr")]
+    all_rows = [r + ['']*(row_length - len(r)) for r in all_rows]
+    return pd.DataFrame.from_records(all_rows, columns=None).to_csv(None, encoding="utf-8", index=False, header=False)
 
 def process_tag(tag, print_url=False):
     anchors = tag.find_all('a')
@@ -61,9 +61,7 @@ def process_text(s):
 def scrape_table(soup_list, print_url=False):
     for soup in soup_list:
         try:
-            df = table2csv(soup,print_url)
-            # df = jtutils.df_to_bytestrings(df)
-            yield df.to_csv(None, encoding="utf-8",index=False)
+            yield table2csv(soup,print_url)
         except AssertionError as e:
             sys.stderr.write("WARNING: invalid table. \n")
             sys.stderr.write("Error info: " + str(e) + "\n")
