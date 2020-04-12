@@ -9,7 +9,9 @@ setup(
     url = "https://github.com/jasontrigg0/web-scraper",
     download_url = 'https://github.com/jasontrigg0/web-scraper/tarball/0.0.0',
     scripts=["scrape/scrape"],
-    install_requires=[],
+    install_requires=["pandas",
+                      "jtutils"
+    ],
     keywords = [],
     classifiers = [],
 )
